@@ -10,7 +10,6 @@ def create_hold(request_body):
     # logic for write data to text file
     hold_data_init = {
         "holds":[{
-        "status": check_holds(request_body["book_id"]),
         "user_id": request_body["user_id"],
         "book_id": request_body["book_id"],
         "hold_id": hold_id,
@@ -19,26 +18,25 @@ def create_hold(request_body):
         ]
     }
     hold_data = {
-        "status": check_holds(request_body["book_id"]),
         "user_id": request_body["user_id"],
         "book_id": request_body["book_id"],
         "hold_id": hold_id,
         "created_at": createDate()
     }
 
-    if(check_holds(request_body["book_id"]) != "Unavailable"):
-        if os.path.getsize('holds.json') != 0:
-            with open('holds.json', 'r') as json_file:
-                addingHold = json.load(json_file)
+
+    if os.path.getsize('holds.json') != 0:
+        with open('holds.json', 'r') as json_file:
+            addingHold = json.load(json_file)
             
             addingHold["holds"].append(hold_data)
 
-            with open("holds.json", "w") as json_file:
-                json.dump(addingHold, json_file, indent = 4, ensure_ascii=False)
+        with open("holds.json", "w") as json_file:
+            json.dump(addingHold, json_file, indent = 4, ensure_ascii=False)
             
-        else:
-            with open("holds.json", "w") as json_file:
-                json.dump(hold_data_init, json_file, indent = 4, ensure_ascii=False)            
+    else:
+        with open("holds.json", "w") as json_file:
+            json.dump(hold_data_init, json_file, indent = 4, ensure_ascii=False)            
     
     return hold_data
 
@@ -87,16 +85,15 @@ def retrieveHold(book_id):
     else:
         return {"message": "No holds"}        
 
-def removeHold(book_id):
+def removeHold(book_id, user_id):
     foundBook = False
     with open('holds.json', 'r') as json_file:
         data = json.load(json_file)
     
     holds = data["holds"]
     for hold in holds:
-        if hold['book_id'] == book_id:
+        if hold['book_id'] == book_id and hold['user_id'] == user_id:
             delete_confirm = {
-        "status": "Hold Removed",
         "user_id": hold["user_id"],
         "book_id": hold["book_id"],
         "hold_id": hold["hold_id"],
@@ -107,7 +104,6 @@ def removeHold(book_id):
 
     if foundBook == False:
         delete_confirm = {
-    "status": "Available",
     "user_id": "N/A",
     "book_id": book_id,
     "hold_id": "N/A",
