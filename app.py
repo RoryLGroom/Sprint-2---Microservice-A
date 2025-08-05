@@ -20,14 +20,15 @@ def getHold():
     book_id = request_body["book_id"]
 
 
-    return retrieveHold(book_id)
+    return jsonify(retrieveHold(book_id))
 
 @app.route("/api/v1/transactions/holds", methods=["DELETE"])
 def deleteHold():
     request_body = request.get_json()
     book_id = request_body["book_id"]
+    user_id = request_body["user_id"]
 
-    return removeHold(book_id)
+    return jsonify(removeHold(book_id, user_id))
 
 
 if __name__ == "__main__":
